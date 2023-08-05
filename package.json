@@ -1,0 +1,8 @@
+{
+  "name": "net.long18.sobrowser",
+  "version": "0.0.1",
+  "displayName": "William Games Tools",
+  "description": "\"SOBrowser\" is a Unity editor tool for efficient Scriptable Object browsing & management. It features custom editors for different types, fuzzy search for asset discovery, inspection history, and options to create/import assets. Enhance your workflow in Unity!",
+  "unity": "2021.3",
+  "unityRelease": "27f1"
+}
