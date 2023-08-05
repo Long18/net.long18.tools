@@ -6,22 +6,22 @@ using System;
 using System.IO;
 using UnityEditor;
 
-public class SampleSOEditor : ScriptableObjectBrowserEditor<SampleSO>
+public class SampleSOEditor : SOBrowserEditor<SampleSO>
 {
-    const string DEFAULT_NAME = "Sample";
+    private const string DEFAULT_NAME = "Sample";
     public SampleSOEditor()
     {
         //set this to true if you want to create a folder containing the scriptable object
-        this.createDataFolder = false;
+        this.CreateDataFolder = false;
         //the storage path must be created before setting this
-        this.defaultStoragePath = "Assets/SOBrowser/Sample/SO";
+        this.DefaultStoragePath = "Packages/net.long18.tools/Sample~/ScriptableObjects"
     }
-
 
     public override void ImportBatchData(string directory, Action<ScriptableObject> callback)
     {
         string[] allLines = File.ReadAllLines(directory);
         bool isSkippedFirstLine = false;
+        
         foreach (string line in allLines)
         {
             if (!isSkippedFirstLine)
@@ -32,9 +32,10 @@ public class SampleSOEditor : ScriptableObjectBrowserEditor<SampleSO>
 
             // get data form tsv file
             string[] splitedData = line.Split('\t');
-            var id = splitedData[0];
-            var name = DEFAULT_NAME + id;
-            var path = this.defaultStoragePath + "/" + name + ".asset";
+            
+            int id = splitedData[0];
+            string name = DEFAULT_NAME + id;
+            string path = this.DefaultStoragePath + "/" + name + ".asset";
 
 
             SampleSO instance = null;

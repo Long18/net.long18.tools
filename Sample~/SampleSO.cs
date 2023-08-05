@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "ScriptableObjectBrowser/SampleSO")]
+[CreateAssetMenu(menuName = "SOBrowser/SampleSO")]
 public class SampleSO : ScriptableObject
 {
     public string ID;
