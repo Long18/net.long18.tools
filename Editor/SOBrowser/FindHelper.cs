@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Long18.Editor.Tools.Editor.SOBrowser
+namespace Long18.SOBrowser
 {
     public static class FindHelper
     {

@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Long18.Editor.Tools.Editor.SOBrowser
+namespace Long18.SOBrowser
 {
 
     public class PromptForText : PopupWindowContent

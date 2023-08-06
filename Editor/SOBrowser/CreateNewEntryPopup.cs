@@ -2,13 +2,13 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Long18.Editor.Tools.Editor.SOBrowser
+namespace Long18.SOBrowser
 {
     public class CreateNewEntryPopup : PopupWindowContent
     {
         private Rect _position;
-        private bool isAutoFocus = true;
-        private string _entryValue = String.Empty;
+        private bool _isAutoFocus = true;
+        private string _entryValue = string.Empty;
 
         private readonly bool _isSameName = false;
         private readonly Action<string> _callback;
@@ -43,10 +43,10 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
 
             GUI.FocusControl("Name");
 
-            if (isAutoFocus)
+            if (_isAutoFocus)
             {
                 if (_entryValue.Length > 0) EditorGUI.FocusTextInControl("Name");
-                isAutoFocus = false;
+                _isAutoFocus = false;
             }
 
             if (_isSameName)
