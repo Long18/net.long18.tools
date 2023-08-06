@@ -13,5 +13,26 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
         public int MatchAmount;
         public bool Visible = true;
         public bool Selected = false;
+
+        public AssetEntry()
+        {
+        }
+
+        public AssetEntry(string path, string name, Object asset)
+        {
+            Path = path;
+            RPath = ReverseString(path);
+            Name = name;
+            Asset = asset;
+        }
+
+        private static string ReverseString(string s)
+        {
+            char[] charArray = s.ToCharArray();
+
+            Array.Reverse(charArray);
+
+            return new string(charArray);
+        }
     }
 }

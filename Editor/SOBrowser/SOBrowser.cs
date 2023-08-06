@@ -11,47 +11,47 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
 {
     public class SOBrowser : EditorWindow
     {
-        private const int BROWSE_AREA_WIDTH = 320;
-        private const int ENTRY_LINE_HEIGHT = 22;
-        private const int EDITOR_HISTORY_MAX = 60;
+        protected const int BROWSE_AREA_WIDTH = 320;
+        protected const int ENTRY_LINE_HEIGHT = 22;
+        protected const int EDITOR_HISTORY_MAX = 60;
 
-        private const string SUFFIX_NAME = ".asset";
-        private const string TOOLBAR_PLUS_NAME = "Toolbar Plus More";
-        private const string CONSOLE_WINDOW_EDITOR_NAME = "UnityEditor.ConsoleWindow";
+        protected const string SUFFIX_NAME = ".asset";
+        protected const string TOOLBAR_PLUS_NAME = "Toolbar Plus More";
+        protected const string CONSOLE_WINDOW_EDITOR_NAME = "UnityEditor.ConsoleWindow";
 
-        private const string FILTER_DUMMY = "FILTER_DUMMY";
-        private const string FILTER = "FILTER";
-        private const string BROWSE_FOCUS_ID = "browse_focus_id";
+        protected const string FILTER_DUMMY = "FILTER_DUMMY";
+        protected const string FILTER = "FILTER";
+        protected const string BROWSE_FOCUS_ID = "browse_focus_id";
 
-        private static readonly LinkedList<ScriptableObject> EditorHistory = new();
-        private static readonly List<Type> BrowsableTypes = new();
-        private readonly HashSet<Object> _selections = new();
+        protected static readonly LinkedList<ScriptableObject> EditorHistory = new();
+        protected static readonly List<Type> BrowsableTypes = new();
+        protected readonly HashSet<Object> _selections = new();
 
-        private static Dictionary<Type, SOBrowserEditor> editors;
-        private static string[] _browsableTypeNames = Array.Empty<string>();
-        private static GUIStyle _selectedStyle;
-        private static Texture2D _textSO;
-
-
-        private SOBrowserEditor _currentEditor;
-        private Vector2 _inspectScroll = Vector2.zero;
-        private Vector2 _browseScroll = Vector2.zero;
-        private List<AssetEntry> _assetList = new();
-        private List<AssetEntry> _sortedAssetList = new();
-        private AssetEntry _currentSelectionEntry;
-        private AssetEntry _startSelectionEntry;
-        private Object _currentObject;
-        private Type _currentType;
-
-        private int _currentTypeIndex;
-
-        private string _filterText = String.Empty;
-
-        private bool _isSelectedPrevious;
-        private bool _isControlFocused;
+        protected static Dictionary<Type, SOBrowserEditor> editors;
+        protected static string[] _browsableTypeNames = Array.Empty<string>();
+        protected static GUIStyle _selectedStyle;
+        protected static Texture2D _textSO;
 
 
-        private static void ReloadBrowserEditors()
+        protected SOBrowserEditor _currentEditor;
+        protected Vector2 _inspectScroll = Vector2.zero;
+        protected Vector2 _browseScroll = Vector2.zero;
+        protected List<AssetEntry> _assetList = new();
+        protected List<AssetEntry> _sortedAssetList = new();
+        protected AssetEntry _currentSelectionEntry;
+        protected AssetEntry _startSelectionEntry;
+        protected Object _currentObject;
+        protected Type _currentType;
+
+        protected int _currentTypeIndex;
+
+        protected string _filterText = String.Empty;
+
+        protected bool _isSelectedPrevious;
+        protected bool _isControlFocused;
+
+
+        protected static void ReloadBrowserEditors()
         {
             if (editors != null) return;
 
@@ -80,7 +80,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             _browsableTypeNames = browsableTypeNames.ToArray();
         }
 
-        private void OnEnable()
+        protected void OnEnable()
         {
             ReloadBrowserEditors();
             SetupEditorAssets();
@@ -91,12 +91,12 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             }
             else if (BrowsableTypes.Count > 0)
             {
-                SwitchToEditorType(BrowsableTypes[0]);
+                GetType(BrowsableTypes[0]);
             }
         }
 
-        [MenuItem("Tools/SO Browser %#o")]
-        private static SOBrowser ShowWindow()
+        [MenuItem("Tools/SO Tested")]
+        protected static SOBrowser ShowWindow()
         {
             ReloadBrowserEditors();
 
@@ -109,12 +109,12 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             return window;
         }
 
-        private static void OpenObject(Object obj)
+        protected static void OpenObject(Object obj)
         {
             SOBrowser window = ShowWindow();
             Type type = obj.GetType();
 
-            window.SwitchToEditorType(type);
+            window.GetType(type);
             SOBrowserEditor editor = window._currentEditor;
 
             editor.SetTargetObjects(new[] { obj });
@@ -136,7 +136,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             return false; // let unity open the file
         }
 
-        private void SwitchToEditorType(Type type)
+        protected void GetType(Type type)
         {
             RecordCurrentSelection();
             _currentSelectionEntry = _startSelectionEntry = null;
@@ -154,7 +154,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
         }
 
 
-        private void ResetAssetList(Type type)
+        protected void ResetAssetList(Type type)
         {
             string[] assets = AssetDatabase.FindAssets($"t:{type.Name}");
 
@@ -193,7 +193,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
         }
 
 
-        private AssetEntry CreateAssetEntry(Object asset)
+        protected AssetEntry CreateAssetEntry(Object asset)
         {
             string name = asset.name;
 
@@ -210,7 +210,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             return entry;
         }
 
-        private void SyncAssetEntry(AssetEntry entry)
+        protected void SyncAssetEntry(AssetEntry entry)
         {
             Object asset = entry.Asset;
             string name = asset.name;
@@ -221,7 +221,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             entry.Name = name;
         }
 
-        private void AddAssetEntry(Object asset)
+        protected void AddAssetEntry(Object asset)
         {
             AssetEntry entry = CreateAssetEntry(asset);
 
@@ -230,7 +230,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             ResortEntries(_filterText);
         }
 
-        private void OnGUI()
+        protected void OnGUI()
         {
             Rect pos = position;
             pos.x -= pos.xMin;
@@ -252,7 +252,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             GUILayout.EndArea();
         }
 
-        private void SetupEditorAssets()
+        protected void SetupEditorAssets()
         {
             _textSO = EditorGUIUtility.FindTexture(CONSOLE_WINDOW_EDITOR_NAME);
             _selectedStyle = new GUIStyle();
@@ -267,7 +267,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
         }
 
 
-        private void ResortEntries(string textResort)
+        protected void ResortEntries(string textResort)
         {
             string filterText = ReverseString(textResort);
 
@@ -310,7 +310,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             if (textResort.Length > 0) _sortedAssetList.Sort((e2, e1) => e1.MatchAmount.CompareTo(e2.MatchAmount));
         }
 
-        private void OnBrowse(Rect area)
+        protected void OnBrowse(Rect area)
         {
             area.x = area.y = 0;
 
@@ -328,9 +328,9 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             GUI.color = Color.white;
 
             int newEditorTypeIndex = EditorGUILayout.Popup(_currentTypeIndex, _browsableTypeNames);
-            
+
             if (newEditorTypeIndex != _currentTypeIndex)
-                SwitchToEditorType(BrowsableTypes[newEditorTypeIndex]);
+                GetType(BrowsableTypes[newEditorTypeIndex]);
 
             EditorGUILayout.BeginHorizontal();
 
@@ -551,9 +551,9 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
         }
 
 
-        private void RenderAssetEntry(AssetEntry asset, ref Rect rectEntry)
+        protected void RenderAssetEntry(AssetEntry asset, ref Rect rectEntry)
         {
-            if (asset.Visible == false) return;
+            if (!asset.Visible) return;
 
             EditorGUILayout.BeginHorizontal(GUILayout.MinWidth(rectEntry.width));
 
@@ -599,12 +599,12 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             Repaint();
         }
 
-        private void SelectionSingle(Object obj)
+        protected void SelectionSingle(Object obj)
         {
             if (_sortedAssetList.Find((a) => a.Asset == obj) is { } asset) SelectionSingle(asset);
         }
 
-        private void SelectionSingle(AssetEntry asset)
+        protected void SelectionSingle(AssetEntry asset)
         {
             RecordCurrentSelection(asset.Asset);
 
@@ -620,7 +620,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             if (isSameObject) EditorGUIUtility.PingObject(asset.Asset);
         }
 
-        private void SelectionSingleToggle(AssetEntry asset)
+        protected void SelectionSingleToggle(AssetEntry asset)
         {
             if (_selections.Contains(asset.Asset) && _selections.Count <= 1) return;
 
@@ -632,7 +632,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             SelectionChanged();
         }
 
-        private void SelectionSetAll()
+        protected void SelectionSetAll()
         {
             _selections.Clear();
 
@@ -644,7 +644,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             SelectionChanged();
         }
 
-        private void SelectionToRange(AssetEntry asset)
+        protected void SelectionToRange(AssetEntry asset)
         {
             if (_startSelectionEntry == null)
             {
@@ -669,7 +669,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             SelectionChanged();
         }
 
-        private void SelectionChanged()
+        protected void SelectionChanged()
         {
             _currentObject = null;
             foreach (Object selection in _selections)
@@ -682,7 +682,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             Repaint();
         }
 
-        private void RecordCurrentSelection(Object nextSelection = null)
+        protected void RecordCurrentSelection(Object nextSelection = null)
         {
             if (_currentSelectionEntry != null && _currentSelectionEntry.Asset == nextSelection) return;
 
@@ -704,7 +704,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
         }
 
 
-        private void SelectPrevious()
+        protected void SelectPrevious()
         {
             while (EditorHistory.Count > 0 && EditorHistory.Last() == null) EditorHistory.RemoveLast();
 
@@ -719,7 +719,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
         }
 
 
-        private void OnInspect(Rect area)
+        protected void OnInspect(Rect area)
         {
             area.x = area.y = 0;
 
@@ -731,7 +731,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             EditorGUILayout.EndScrollView();
         }
 
-        private static string ReverseString(string s)
+        protected static string ReverseString(string s)
         {
             char[] arr = s.ToCharArray();
 
@@ -740,7 +740,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             return new string(arr);
         }
 
-        private void RenameCurrentEntry()
+        protected void RenameCurrentEntry()
         {
             if (_currentObject == null) return;
 
@@ -758,7 +758,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             PopupWindow.Show(rect, new CreateNewEntryPopup(rect, _currentObject.name, FinishRenameCurrentEntry));
         }
 
-        private void FinishRenameCurrentEntry(string newName)
+        protected void FinishRenameCurrentEntry(string newName)
         {
             if (_currentObject == null) return;
 
@@ -782,7 +782,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             SyncAssetEntry(_currentSelectionEntry);
         }
 
-        private void ImportEntries()
+        protected void ImportEntries()
         {
             var r = new Rect
             {
@@ -802,7 +802,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             }
         }
 
-        private void CreateNewEntry()
+        protected void CreateNewEntry()
         {
             var rect = new Rect
             {
@@ -818,13 +818,13 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
             PopupWindow.Show(rect, new CreateNewEntryPopup(rect, "", FinishCreateNewEntry));
         }
 
-        private void FinishCreateNewEntry(string name)
+        protected void FinishCreateNewEntry(string name)
         {
             CreateNewEntry(name);
             Repaint();
         }
 
-        private void FinishImportEntries(string directory)
+        protected void FinishImportEntries(string directory)
         {
             Repaint();
 
@@ -832,7 +832,7 @@ namespace Long18.Editor.Tools.Editor.SOBrowser
         }
 
 
-        private void CreateNewEntry(string name)
+        protected void CreateNewEntry(string name)
         {
             string path;
 
