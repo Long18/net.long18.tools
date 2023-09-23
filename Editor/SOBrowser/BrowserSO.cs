@@ -4,42 +4,49 @@ using System.Linq;
 using System.Reflection;
 using Long18.SOBrowser;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
+using PopupWindow = UnityEditor.PopupWindow;
 
 namespace Long18.Tools
 {
-    public class Browser : EditorWindow
+    public class BrowserSO : EditorWindow
     {
         [SerializeField] private VisualTreeAsset _uxml;
         [SerializeField] private StyleSheet _styleSheet;
 
         private static readonly List<Type> _browsableTypes = new();
         private static string[] _browsableTypesName = Array.Empty<string>();
-        private static Dictionary<Type, BrowserEditor> _editors;
+        private static Dictionary<Type, BrowserSOEditor> _editors;
 
         protected List<AssetEntry> _assetList = new();
         protected List<AssetEntry> _sortedAssetList = new();
 
-        private BrowserEditor _currentEditor;
+        private BrowserSOEditor _currentSoEditor;
         private Object _currentObject;
 
         protected int _currentTypeIndex;
-
+        
+        private Button _toolBarButton;
+        private Button _tollBarMoreButton;
+        private Button _settingsButton;
+        private ToolbarSearchField _searchingField;
+        
         private ListView _listView;
         private Box _cardInfoBox;
 
         [MenuItem("Long 18/Tool Cards")]
-        public static Browser ShowWindow()
+        public static BrowserSO ShowWindow()
         {
             ReloadBrowserEditors();
 
-            Browser[] windows = Resources.FindObjectsOfTypeAll<Browser>();
+            BrowserSO[] windows = Resources.FindObjectsOfTypeAll<BrowserSO>();
             if (windows.Length > 0) return windows[0];
 
-            Browser window = GetWindow<Browser>();
+            BrowserSO window = GetWindow<BrowserSO>();
 
             window.ShowTab();
             return window;
@@ -67,13 +74,42 @@ namespace Long18.Tools
 
             _listView = rootVisualElement.Q<ListView>("card-list");
             _cardInfoBox = rootVisualElement.Q<Box>("card-info");
+            _toolBarButton = rootVisualElement.Q<Button>("toolbar-plus-button");
+            _tollBarMoreButton = rootVisualElement.Q<Button>("toolbar-more-button");
+            _settingsButton = rootVisualElement.Q<Button>("settings-button");
+            _searchingField = rootVisualElement.Q<ToolbarSearchField>("toolbar-search-field");
+
+            _toolBarButton.style.backgroundImage =(StyleBackground)
+                EditorGUIUtility.IconContent("Toolbar Plus").image;
+            _tollBarMoreButton.style.backgroundImage = (StyleBackground)
+                EditorGUIUtility.IconContent("Toolbar Plus More").image;
+            _settingsButton.style.backgroundImage = (StyleBackground)
+                EditorGUIUtility.IconContent("SettingsIcon").image;
+            
+            _toolBarButton.clicked += () =>
+            {var rect = new Rect
+                         {
+                             position = position.position
+                         };
+             
+                         rect.y += 50;
+                         rect.x += 32;
+             
+                         rect.width =  position.width /2;
+                         rect.height = 18;
+                
+            PopupWindow.Show(rect, new CreateNewEntryPopup(rect, "", (assetName) =>
+            {
+                Debug.Log($"Get name asset here: {assetName}");
+            }));
+            };
         }
 
         private void CreateListView()
         {
             Type currentType = null;
 
-            if (_currentEditor == null && _currentObject != null)
+            if (_currentSoEditor == null && _currentObject != null)
             {
                 OpenObject(_currentObject);
             }
@@ -133,11 +169,11 @@ namespace Long18.Tools
                 foreach (var type in file.GetTypes())
                 {
                     if (type.BaseType is not { IsGenericType: true }) continue;
-                    if (type.BaseType.GetGenericTypeDefinition() != typeof(BrowserEditor<>)) continue;
+                    if (type.BaseType.GetGenericTypeDefinition() != typeof(BrowserSOEditor<>)) continue;
                     if (type.BaseType == null && _editors != null) return;
 
                     Type genericArgument = type.BaseType?.GetGenericArguments()[0];
-                    _editors[genericArgument!] = (BrowserEditor)Activator.CreateInstance(type);
+                    _editors[genericArgument!] = (BrowserSOEditor)Activator.CreateInstance(type);
 
                     _browsableTypes.Add(genericArgument);
                     typesName.Add(genericArgument?.Namespace);
@@ -149,14 +185,14 @@ namespace Long18.Tools
 
         private static void OpenObject(Object obj)
         {
-            Browser window = ShowWindow();
+            BrowserSO window = ShowWindow();
             Type type = obj.GetType();
 
             window.GetType(type);
-            BrowserEditor editor = window._currentEditor;
+            BrowserSOEditor soEditor = window._currentSoEditor;
 
             Object[] target = { obj };
-            editor.SetTargetObjects(target);
+            soEditor.SetTargetObjects(target);
         }
 
         private Type GetType(Type type)
@@ -165,8 +201,8 @@ namespace Long18.Tools
             if (type == null) return null;
 
             _currentTypeIndex = _browsableTypes.IndexOf(type);
-            _currentEditor = _editors[type];
-            _currentEditor.Editor_SetBrowser(this);
+            _currentSoEditor = _editors[type];
+            _currentSoEditor.Editor_SetBrowser(this);
 
             return type;
         }

@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement style="border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px; border-top-left-radius: 1px; border-bottom-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; margin-top: 5px;">
+        <ui:DropdownField index="-1" choices="System.Collections.Generic.List`1[System.String]" />
+        <ui:VisualElement name="settings-panel" style="flex-wrap: nowrap; min-width: 100%; min-height: auto; flex-direction: row;">
+            <ui:Button display-tooltip-when-elided="true" name="toolbar-plus-button" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; max-width: 25px; max-height: 25px;" />
+            <ui:Button display-tooltip-when-elided="true" name="toolbar-more-button" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; max-width: 25px; max-height: 25px;" />
+            <ui:Button focusable="true" name="settings-button" style="width: 20px; height: 20px; min-width: 20px; min-height: 20px; max-width: 25px; max-height: 25px;" />
+            <uie:ToolbarSearchField focusable="true" name="toolbar-search-field" style="max-width: 100%; width: 260px;" />
+        </ui:VisualElement>
+        <ui:ListView name="card-list" style="max-height: 100%; max-width: 100%; min-width: 100%; margin-top: 5px;" />
+    </ui:VisualElement>
+    <ui:Box name="card">
+        <ui:ScrollView name="card-info-scroll">
+            <ui:Box name="card-info" />
+        </ui:ScrollView>
+    </ui:Box>
+</ui:UXML>

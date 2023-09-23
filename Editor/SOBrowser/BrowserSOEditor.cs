@@ -5,10 +5,10 @@ using Object = UnityEngine.Object;
 
 namespace Long18.Tools
 {
-    public abstract class BrowserEditor
+    public abstract class BrowserSOEditor
     {
         protected Editor CachedEditor;
-        public Browser Browser { get; protected set; }
+        public BrowserSO BrowserSo { get; protected set; }
         public bool CreateDataFolder { get; protected set; }
         public string DefaultStoragePath { get; protected set; }
         public GenericMenu ContextMenu { get; protected set; }
@@ -36,11 +36,11 @@ namespace Long18.Tools
         /// This function only used for Editor
         /// </summary>
         /// <param name="value"></param>
-        public void Editor_SetBrowser(Browser value) => Browser = value;
+        public void Editor_SetBrowser(BrowserSO value) => BrowserSo = value;
 #endif
     }
 
-    public abstract class BrowserEditor<T> : BrowserEditor where T : Object
+    public abstract class BrowserSOEditor<T> : BrowserSOEditor where T : Object
     {
         public T TargetObject { get; set; }
 
