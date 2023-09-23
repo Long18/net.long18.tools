@@ -52,6 +52,11 @@ namespace Long18.Tools
             ReloadBrowserEditors();
             CreateListView();
         }
+        private void OnFocus()
+        {
+            ReloadBrowserEditors();
+            CreateListView();
+        }
 
         #region UI
 
