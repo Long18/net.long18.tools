@@ -95,7 +95,7 @@ namespace Long18.SOBrowser
             }
         }
 
-        [MenuItem("Long18 Tools/SO Finding")]
+        // [MenuItem("Long18 Tools/SO Finding")]
         protected static SOBrowser ShowWindow()
         {
             ReloadBrowserEditors();

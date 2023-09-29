@@ -1,0 +1,63 @@
+.item {
+    flex-basis: 20%;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    max-width: 25px;
+    min-width: 25px;
+    max-height: 25px;
+    min-height: 25px;
+    margin-left: 10px;
+    background-image: url('project://database/Assets/0_CubeRunning/Assets/UI/CloseButton.png?fileID=21300000&guid=92e6532c852ffb24794c406ed60017fc&type=3#CloseButton');
+    -unity-background-scale-mode: scale-to-fit;
+    transition-duration: 0.25s;
+}
+
+.item:hover {
+}
+
+.item:active {
+}
+
+.item-name {
+    -unity-text-align: middle-center;
+    font-size: 18px;
+    margin-left: 5px;
+    width: auto;
+    height: 25px;
+    max-height: 25px;
+    min-height: 25px;
+}
+
+#unity-panel {
+    border-left-width: 1px;
+    width: 2px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgb(84, 84, 84);
+    border-right-color: rgb(84, 84, 84);
+    border-top-color: rgb(84, 84, 84);
+    border-bottom-color: rgb(84, 84, 84);
+    border-top-left-radius: 1px;
+    border-bottom-left-radius: 1px;
+    border-top-right-radius: 1px;
+    border-bottom-right-radius: 1px;
+    margin-left: 5px;
+}
+
+.item-type {
+    -unity-text-align: middle-left;
+    font-size: 16px;
+    margin-left: 5px;
+    width: auto;
+    height: 25px;
+    max-height: 25px;
+    min-height: 25px;
+    color: rgb(106, 106, 106);
+    white-space: nowrap;
+    max-width: 200px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}

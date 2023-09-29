@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Long18.SOBrowser;
+using Long18.Tools.Component;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEditor.UIElements;
@@ -18,6 +19,9 @@ namespace Long18.Tools
         [SerializeField] private VisualTreeAsset _uxml;
         [SerializeField] private StyleSheet _styleSheet;
 
+        [SerializeField] private VisualTreeAsset _itemUxml;
+        [SerializeField] private StyleSheet _itemStyleSheet;
+
         private static readonly List<Type> _browsableTypes = new();
         private static string[] _browsableTypesName = Array.Empty<string>();
         private static Dictionary<Type, BrowserSOEditor> _editors;
@@ -29,14 +33,17 @@ namespace Long18.Tools
         private Object _currentObject;
 
         protected int _currentTypeIndex;
-        
+
         private Button _toolBarButton;
         private Button _tollBarMoreButton;
         private Button _settingsButton;
         private ToolbarSearchField _searchingField;
-        
-        private ListView _listView;
+
+        private ScrollView _scrollView;
         private Box _cardInfoBox;
+
+        private List<VisualElement> _rowParents;
+        private ItemComponent _selectedItem;
 
         [MenuItem("Long 18/Tool Cards")]
         public static BrowserSO ShowWindow()
@@ -58,12 +65,18 @@ namespace Long18.Tools
 
             ReloadBrowserEditors();
             CreateListView();
+
+            ItemComponent.ItemClicked += OnItemClicked;
         }
+
         private void OnFocus()
         {
             ReloadBrowserEditors();
             CreateListView();
+
+            ItemComponent.ItemClicked += OnItemClicked;
         }
+
 
         #region UI
 
@@ -72,37 +85,41 @@ namespace Long18.Tools
             rootVisualElement.Add(_uxml.CloneTree());
             rootVisualElement.styleSheets.Add(_styleSheet);
 
-            _listView = rootVisualElement.Q<ListView>("card-list");
             _cardInfoBox = rootVisualElement.Q<Box>("card-info");
             _toolBarButton = rootVisualElement.Q<Button>("toolbar-plus-button");
             _tollBarMoreButton = rootVisualElement.Q<Button>("toolbar-more-button");
             _settingsButton = rootVisualElement.Q<Button>("settings-button");
             _searchingField = rootVisualElement.Q<ToolbarSearchField>("toolbar-search-field");
 
-            _toolBarButton.style.backgroundImage =(StyleBackground)
+            _scrollView = rootVisualElement.Q<ScrollView>("card-list");
+            _rowParents = _scrollView.Children() as List<VisualElement>;
+
+            _toolBarButton.style.backgroundImage = (StyleBackground)
                 EditorGUIUtility.IconContent("Toolbar Plus").image;
             _tollBarMoreButton.style.backgroundImage = (StyleBackground)
                 EditorGUIUtility.IconContent("Toolbar Plus More").image;
             _settingsButton.style.backgroundImage = (StyleBackground)
                 EditorGUIUtility.IconContent("SettingsIcon").image;
-            
+
             _toolBarButton.clicked += () =>
-            {var rect = new Rect
-                         {
-                             position = position.position
-                         };
-             
-                         rect.y += 50;
-                         rect.x += 32;
-             
-                         rect.width =  position.width /2;
-                         rect.height = 18;
-                
-            PopupWindow.Show(rect, new CreateNewEntryPopup(rect, "", (assetName) =>
             {
-                Debug.Log($"Get name asset here: {assetName}");
-            }));
+                var rect = new Rect
+                {
+                    position = position.position
+                };
+
+                rect.y += 50;
+                rect.x += 32;
+
+                rect.width = position.width / 2;
+                rect.height = 18;
+
+                PopupWindow.Show(rect,
+                    new CreateNewEntryPopup(rect, "",
+                        (assetName) => { Debug.Log($"Get name asset here: {assetName}"); }));
             };
+
+            ClearRows();
         }
 
         private void CreateListView()
@@ -122,33 +139,115 @@ namespace Long18.Tools
 
             FindDatas(out Object[] cards, currentType.Name);
 
-            _listView.itemsSource = cards;
-            _listView.fixedItemHeight = 16;
-            _listView.selectionType = SelectionType.Single;
+            _assetList.Clear();
+            _sortedAssetList.Clear();
 
-            _listView.onSelectionChange += OnChoosingItem;
-            _listView.RefreshItems();
+            foreach (var card in cards)
+            {
+                _assetList.Add(CreateAssetEntry(card));
+            }
+
+            ShowItems(_assetList.ToArray());
         }
 
-
-        private void OnChoosingItem(IEnumerable<object> items)
+        protected AssetEntry CreateAssetEntry(Object asset)
         {
-            foreach (var item in items)
+            string name = asset.name;
+
+            string path = $"{AssetDatabase.GetAssetPath(asset)}.{name}";
+
+            AssetEntry entry = new AssetEntry(path: path, name: name, asset: asset);
+
+            return entry;
+        }
+
+        private void OnItemClicked(ItemComponent item)
+        {
+            SelectItem(_selectedItem, false);
+
+            SelectItem(item, true);
+
+            _cardInfoBox.Clear();
+            Object data = item.ItemData.Asset;
+
+            SerializedObject sObject = new SerializedObject((Object)data);
+            SerializedProperty sDataProperty = sObject.GetIterator();
+            sDataProperty.Next(true);
+
+            while (sDataProperty.NextVisible(false))
             {
-                _cardInfoBox.Clear();
-                var data = item;
-
-                SerializedObject sObject = new SerializedObject((Object)data);
-                SerializedProperty sDataProperty = sObject.GetIterator();
-                sDataProperty.Next(true);
-
-                while (sDataProperty.NextVisible(false))
-                {
-                    PropertyField prop = new PropertyField(sDataProperty);
-                    prop.Bind(sObject);
-                    _cardInfoBox.Add(prop);
-                }
+                PropertyField prop = new PropertyField(sDataProperty);
+                prop.Bind(sObject);
+                _cardInfoBox.Add(prop);
             }
+        }
+
+        private void SelectItem(ItemComponent item, bool state)
+        {
+            if (item == null) return;
+
+            _selectedItem = (state) ? item : null;
+            item.CheckItem(state);
+        }
+
+        private void ShowItems(AssetEntry[] items)
+        {
+            int maxCount = Mathf.Clamp(items.Length, 0, 20 * _rowParents.Count);
+
+            ClearRows();
+
+            for (int i = 0; i < maxCount; i++)
+            {
+                int parentIndex = i / 20;
+                CreateItemButton(items[i], _rowParents[parentIndex]);
+            }
+
+            // HideEmptyRows();
+        }
+
+        private void HideEmptyRows()
+        {
+            for (int i = 0; i < _rowParents.Count; i++)
+            {
+                _rowParents[i].style.display = (IsRowEmpty(_rowParents[i]))
+                    ? DisplayStyle.None
+                    : DisplayStyle.Flex;
+            }
+        }
+
+        private bool IsRowEmpty(VisualElement rowParent)
+        {
+            VisualElement itemElement = rowParent.Q<VisualElement>(className: "item__type");
+            return itemElement == null;
+        }
+
+        private void ClearRows()
+        {
+            foreach (var element in _rowParents)
+            {
+                if (element == null) continue;
+                element.Clear();
+            }
+        }
+
+        private void CreateItemButton(AssetEntry data, VisualElement parentElement)
+        {
+            if (parentElement == null)
+            {
+                Debug.Log("InventoryScreen.CreateGearItemButton: missing parent element");
+                return;
+            }
+
+            TemplateContainer itemUIElement = _itemUxml.Instantiate();
+            itemUIElement.styleSheets.Add(_itemStyleSheet);
+
+            ItemComponent itemComponent = new ItemComponent(data);
+
+            itemComponent.SetVisualElements(itemUIElement);
+            itemComponent.SetData(itemUIElement);
+            itemComponent.RegisterButtonCallbacks();
+
+            parentElement.Add(itemUIElement);
         }
 
         #endregion

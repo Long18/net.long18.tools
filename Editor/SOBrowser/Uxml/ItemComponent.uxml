@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Packages/net.long18.sobrowser/Editor/SOBrowser/Uss/ItemStyleSheet.uss?fileID=7433441132597879392&amp;guid=bb6d508e271f59c44a57a762e8ae2c08&amp;type=3#ItemStyleSheet" />
+    <ui:VisualElement style="flex-direction: row; flex-wrap: wrap;">
+        <ui:VisualElement name="item__icon" class="item" style="flex-direction: row;">
+            <ui:VisualElement name="item__checkmark" style="display: none; position: absolute; width: 50%; height: 50%; background-image: url(&apos;project://database/Packages/com.unity.2d.spriteshape/Editor/Handles/ss_playhead.png?fileID=21300000&amp;guid=9ea72647c24be493ba6f15a9cd2a24ae&amp;type=3#ss_playhead&apos;);" />
+        </ui:VisualElement>
+        <ui:Label text="Label" display-tooltip-when-elided="true" name="item__name" class="item-name" />
+        <ui:VisualElement name="unity-panel" />
+        <ui:Label text="Label" display-tooltip-when-elided="true" name="item__type" class="item-type" />
+    </ui:VisualElement>
+</ui:UXML>
